@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mb-4">Add Quiz</h2>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-info">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                <form action="{{ url_for('controllers.add_quiz') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="qid" class="form-label">Quiz id</label>
+                        <input type="Text" class="form-control" id="qid" name="qid" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="chapter-id" class="form-label">Chapter id</label>
+                        <input type="Text" class="form-control" id="chapter-id" name="cid" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration-hours" class="form-label">Hours</label>
+                        <input type="number" class="form-control" id="duration-hours" name="duration_hours" min="0" max="5" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration-minutes" class="form-label">Minutes</label>
+                        <input type="number" class="form-control" id="duration-minutes" name="duration_minutes" min="0" max="59" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">Difficulty</label>
+                        <select class="form-control" id="difficulty" name="difficulty" required>
+                            <option value="" disabled selected>Select Difficulty</option>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                            <option value="Extreme">Extreme</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="no_of_q" class="form-label">Number of questions</label>
+                        <input type="number" class="form-control" id="no_of_q" name="no_of_q" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="start_date" class="form-label">Date and time of starting of quiz</label>
+                        <input type="datetime-local" class="form-control" id="start_date" name="start_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="del_date" class="form-label">Date and time of closing of quiz</label>
+                        <input type="datetime-local" class="form-control" id="del_date" name="del_date" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Add</button>
+                </form>
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('controllers.admin_dashboard') }}">Go back to dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block navbar %}
+<li class="nav-item">
+    <form class="d-flex" method="GET" 
+        action="{{ url_for('controllers.user_search') }}">
+        <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+</li>
+{% endblock %}
+{% block content %}
+        
+        <h2>Search Results for "{{ request.args.get('query', '') }}"</h2>
+        
+        {% if subjects or chapters or quiz %}
+            
+            {% if subjects %}
+            <h3>Subjects</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.id }}</td>
+                        <td>{{ subject.name }}</td>
+                        <td>{{ subject.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+            {% if chapters %}
+            <h3>Chapters</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chapter in chapters %}
+                    <tr>
+                        <td>{{ chapter.id }}</td>
+                        <td>{{ chapter.sid }}</td>
+                        <td>{{ chapter.name }}</td>
+                        <td>{{ chapter.description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+            {% if quiz %}
+            <h3>Quizzes</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Chapter ID</th>
+                        <th>Duration</th>
+                        <th>Difficulty</th>
+                        <th>Question Count</th>
+                        <th>Total Attempts</th>
+                        <th>Average Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in quiz %}
+                    <tr>
+                        <td>{{ q.id }}</td>
+                        <td>{{ q.cid }}</td>
+                        <td>{{ q.duration }}</td>
+                        <td>{{ q.difficulty }}</td>
+                        <td>{{ q.no_of_questions }}</td>
+                        <td>{{ q.total_attempts }}</td>
+                        <td>{{ q.avg_score }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            
+        {% else %}
+            <p class="alert alert-warning">No results found.</p>
+        {% endif %}
+        
+        <a href="{{ url_for('controllers.user_dashboard') }}" class="btn btn-primary mt-3">Back to Dashboard</a>
+    </div>
+{% endblock %}

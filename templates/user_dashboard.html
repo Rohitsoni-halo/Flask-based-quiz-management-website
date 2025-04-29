@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block navbar %}
+<li class="nav-item me-2">
+    <a href="{{ url_for('controllers.my_attempts') }}" class="btn btn-outline-primary">My Attempts</a>
+</li>
+<li class="nav-item">
+    <form class="d-flex" method="GET" action="{{ url_for('controllers.user_search') }}">
+        <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+</li>
+{% endblock %}
+
+{% block content %}
+
+{% if viewing=="subjects" %}
+    <h2 class="mb-4">Welcome {{ user.id }}! </h2>
+{% endif %}
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+{% if viewing=="subjects" %}
+    <h3 class="mt-4">Available Subjects</h3>
+    <div class="row">
+    
+        {% for subject in subjects %}
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        
+                        <h3 class="card-title">
+                            <a href="{{ url_for('controllers.view_chapters', subject_id=subject.id) }}" class="text-decoration-none">
+                                {{ subject.name }} ({{ subject.id }})
+                            </a>
+                        </h3>
+                        <p class="card-text"><strong>Description:</strong> {{ subject.description }}</p>
+                        
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% elif viewing=="chapters" %}
+    <h3 class="mt-4">Available Chapters</h3>
+    <div class="row">
+        {% for chapter in chapters %}
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        
+                        <h3 class="card-title">
+                            <a href="{{ url_for('controllers.view_quizzes', chapter_id=chapter.id) }}" class="text-decoration-none">
+                                {{ chapter.name }} ({{ chapter.id }})
+                            </a>
+                        </h3>
+                        <p class="card-text"><strong>Description:</strong> {{ chapter.description }}</p>
+                        
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% elif viewing=="quizzes" %}
+    <h3 class="mt-4">Available Quizzes</h3>
+    <div class="row">
+        {% for quiz in quizzes %}
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        
+                        <h3 class="card-title">
+                            <a href="{{ url_for('controllers.start_quiz',quiz_id=quiz.id) }}" class="text-decoration-none">
+                                {{ quiz.id }} 
+                            </a>
+                            <meta http-equiv="refresh" content="60;url={{ url_for('controllers.user_dashboard',quiz_id=quiz.id) }}">
+                        </h3>
+                        <p class="card-text"><strong>Duration:</strong> {{ quiz.duration }}</p>
+                        <p class="card-text"><strong>Difficulty:</strong> {{ quiz.difficulty }}</p>
+                        <p class="card-text"><strong>Number of questions:</strong> {{ quiz.no_of_questions }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+{% elif viewing=="scores" %}
+    <h2 class="mb-4">My Attempts</h2>
+
+    {% for subject_data in attempts_data %}
+        <h3>SUBJECT: {{ subject_data.subject.name }}</h3>
+
+        {% for chapter_data in subject_data.chapters %}
+            <h4 class="ms-3">Chapter: {{ chapter_data.chapter.name }}</h4>
+
+            {% for quiz_info in chapter_data.quizzes %}
+                <div class="ms-5 border p-2 rounded shadow-sm mb-2">
+                    <a href="{{ url_for('controllers.quiz_feedback', attempt_id=quiz_info.attempt.id,total_marks=quiz_info.quiz.total_marks) }}" class="fw-bold">
+                        Quiz ID: {{ quiz_info.quiz.id }} ( {{ quiz_info.attempt.attempt_time }} )
+                    </a>
+                    <p>Duration: {{ quiz_info.quiz.duration }} mins</p>
+                    <p>Difficulty: {{ quiz_info.quiz.difficulty }}</p>
+                    <p>Score: {{ quiz_info.attempt.total_marks_scored }} out of {{ quiz_info.quiz.total_marks }}</p>
+                    <p>Total Attempts: {{ quiz_info.total_attempts }}</p>
+                    <p>Average Score: {{ quiz_info.avg_score }}</p>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
+
+
+<!-- Logout Button 
+<div class="mt-4">
+    <a href="{{ url_for('controllers.logout') }}" class="btn btn-danger">
+        <i class="fa-solid fa-sign-out-alt"></i> Logout
+    </a>
+</div>
+-->
+{% endblock %}

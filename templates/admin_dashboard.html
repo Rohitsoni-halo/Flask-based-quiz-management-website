@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            background-image: linear-gradient(109.6deg, rgba(255,249,35,1) 11.5%, rgba(243,161,0,1) 91.1%);
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .my-5{
+            line-height: 250px;
+            height: 200px;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('controllers.admin_dashboard') }}">Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- User Management Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-users"></i> User Management
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.show_all_user') }}">Show All Users</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.block_user') }}">Block a User</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.unblock_user') }}">Unblock a User</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Subjects & Chapters Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="subjectDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-book"></i> Subjects & Chapters
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.show_all_subjects') }}">Show all Subjects</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.add_subject') }}">Add a Subject</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.edit_subject') }}">Edit a Subject</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.add_chapter') }}">Add a Chapter</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.edit_chapter') }}">Edit a Chapter</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Quiz Management Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="quizDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-clipboard-list"></i> Quiz Management
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.add_quiz') }}">Add a Quiz</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.edit_quiz') }}">Edit a Quiz</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.add_question') }}">Add a Question</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('controllers.edit_question') }}">Edit a Question</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Search Bar -->
+                <form class="d-flex" method="GET" 
+                    action="{% if show == 'users' %}{{ url_for('controllers.search_users') }}{% elif show=='subjects' %}{{ url_for('controllers.search_subjects') }}{% else %}{{ url_for('controllers.search_all') }}{% endif %}">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+
+                <!-- Logout Button -->
+                <a href="{{ url_for('controllers.logout') }}" class="btn btn-danger ms-3">
+                    <i class="fa-solid fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4 text-center">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% if show=="dashboard" %}
+            <h2 class="my-5">Welcome to Admin's dashboard</h2>
+            
+        {% elif show=="users" %}
+        <div class="container mt-5">
+            <h2>List of all users</h2>
+            
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Index</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>DOB</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Change Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ loop.index }}</td>   
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.DOB }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.role }}</td>
+                            <td>{{ user.status }}</td>
+                            <td>
+                                {% if user.role=='admin' %}
+                                    <button disabled>Admin</button>
+                                {% elif user.status == 'unblocked' %}
+                                    <a href="{{ url_for('controllers.auto_block',user_id=user.id) }}" class="btn btn-danger">Block</a>
+                                {% else %}
+                                    <a href="{{ url_for('controllers.auto_block',user_id=user.id) }}" class="btn btn-success">Unblock</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% elif show=="subjects" %}
+            <div class="container mt-5">
+                <h2>List of all subjects</h2>
+                
+            {% if subjects %}
+            <h3>Subjects</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.id }}</td>
+                        <td>{{ subject.name }}</td>
+                        <td>{{ subject.description }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <form action="{{ url_for('controllers.edit_subject', edit_mode=True) }}" method="POST">
+                                    <input type="hidden" name="id" value="{{ subject.id }}">
+                                    <button type="submit" class="btn btn-warning btn-sm" name="search">Edit</button>
+                                </form>
+                                <form action="{{ url_for('controllers.delete_subject') }}" method="POST">
+                                    <input type="hidden" name="id" value="{{ subject.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this subject?');">
+                                        Delete
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('controllers.show_chapters',subject_id=subject.id) }}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm" >
+                                        Show chapters
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        
+
+        {% elif show=="chapters" %}
+            <div class="container mt-5">
+                <h2>List of all chapters</h2>
+                
+            {% if chapters %}
+            <h3>Chapters</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject ID</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for chapter in chapters %}
+                    <tr>
+                        <td>{{ chapter.id }}</td>
+                        <td>{{ chapter.sid }}</td>
+                        <td>{{ chapter.name }}</td>
+                        <td>{{ chapter.description }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <form action="{{ url_for('controllers.edit_chapter', edit_mode=True) }}" method="POST">
+                                    <input type="hidden" name="cid" value="{{ chapter.id }}">
+                                    <button type="submit" class="btn btn-warning btn-sm" name="search">Edit</button>
+                                </form>
+                                <form action="{{ url_for('controllers.delete_chapter') }}" method="POST">
+                                    <input type="hidden" name="cid" value="{{ chapter.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this chapter?');">
+                                        Delete
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('controllers.show_quizzes',chapter_id=chapter.id) }}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm" >
+                                        Show quizzes
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+        {% elif show=="questions" %}
+            <div class="container mt-5">
+                <h2>List of all questions</h2>
+                
+            {% if questions %}
+            <h3>Questions</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Quiz ID</th>
+                        <th>Statement</th>
+                        <th>Option 1</th>
+                        <th>Option 2</th>
+                        <th>Option 3</th>
+                        <th>Option 4</th>
+                        <th>Difficulty</th>
+                        <th>Explanation</th>
+                        <th>Explanation_link</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in questions %}
+                    <tr>
+                        <td>{{ q.id }}</td>
+                        <td>{{ q.qid }}</td>
+                        <td>{{ q.statement }}</td>
+                        <td>{{ q.option1 }}</td>
+                        <td>{{ q.option2 }}</td>
+                        <td>{{ q.option3 }}</td>
+                        <td>{{ q.option4 }}</td>
+                        <td>{{ q.difficulty }}</td>
+                        <td>{{ q.explanation }}</td>
+                        <td>{{ q.explanation_link }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <form action="{{ url_for('controllers.edit_question', edit_mode=True) }}" method="POST">
+                                    <input type="hidden" name="qtid" value="{{ q.id }}">
+                                    <button type="submit" class="btn btn-warning btn-sm" name="search">Edit</button>
+                                </form>
+                                <form action="{{ url_for('controllers.delete_question') }}" method="POST">
+                                    <input type="hidden" name="qtid" value="{{ q.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this quiz?');">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% elif show=="quizzes" %}
+            <div class="container mt-5">
+                <h2>List of all quizzes</h2>
+                
+            {% if quizzes %}
+            <h3>Quizzes</h3>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Chapter ID</th>
+                        <th>Date</th>
+                        <th>Duration</th>
+                        <th>Difficulty</th>
+                        <th>Question Count</th>
+                        <th>Delete Date</th>
+                        <th>Total Attempts</th>
+                        <th>Average Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in quizzes %}
+                    <tr>
+                        <td>{{ q.id }}</td>
+                        <td>{{ q.cid }}</td>
+                        <td>{{ q.date }}</td>
+                        <td>{{ q.duration }}</td>
+                        <td>{{ q.difficulty }}</td>
+                        <td>{{ q.no_of_questions }}</td>
+                        <td>{{ q.delete_date }}</td>
+                        <td>{{ q.total_attempts }}</td>
+                        <td>{{ q.avg_score }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <form action="{{ url_for('controllers.edit_quiz', edit_mode=True) }}" method="POST">
+                                    <input type="hidden" name="qid" value="{{ q.id }}">
+                                    <button type="submit" class="btn btn-warning btn-sm" name="search">Edit</button>
+                                </form>
+                                <form action="{{ url_for('controllers.delete_quiz') }}" method="POST">
+                                    <input type="hidden" name="qid" value="{{ q.id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this quiz?');">
+                                        Delete
+                                    </button>
+                                </form>
+                                {% if q.state == 'active' %}
+                                    <a href="{{ url_for('controllers.toggle_state_indirect',quiz_id=q.id,c_id=q.cid) }}" class="btn btn-danger btn-sm">Deactivate</a>
+                                {% elif q.state == 'inactive' %}
+                                    <a href="{{ url_for('controllers.toggle_state_indirect',quiz_id=q.id,c_id=q.cid) }}" class="btn btn-success btn-sm">Activate</a>
+                                {% endif %}
+                                <form action="{{ url_for('controllers.show_questions',quiz_id=q.id) }}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm" >
+                                        Show questions
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

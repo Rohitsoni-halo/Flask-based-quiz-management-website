@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .quiz-card {
+            background: #ffffff;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            position: relative;
+        }
+
+        .timer {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        .Marks {
+            position: absolute;
+            top: 45px;
+            right: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color:chartreuse
+        }
+
+        .question-number {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .question-text {
+            margin-top: 50px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        .option-btn {
+            background-color: #d0f0ff; /* Light blue */
+            border: none;
+            padding: 12px 20px;
+            margin: 10px 0;
+            width: 100%;
+            border-radius: 10px;
+            transition: background 0.3s, transform 0.1s;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .option-btn:hover {
+            background-color: #b0e0ff;
+            transform: scale(1.02);
+        }
+
+        .option-btn.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            border-radius: 30px;
+            padding: 10px 20px;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 60%;
+            margin: 20px auto 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-card">
+        <div class="timer">
+            {% if remaining_time > 21600 %}
+                <meta http-equiv="refresh" content="0;url={{ url_for('controllers.submit_quiz') }}">
+            {% elif remaining_time <= 21600 %}
+                Time Left: {{ (remaining_time // 60) }}:{{ '%02d' % (remaining_time % 60) }}
+            {% else %}
+                <span class="text-danger">Time's Up!</span>
+            {% endif %}
+        </div>
+
+        <div class="Marks">
+            <p>Marks: {{ question.marks }}</p>
+        </div>
+        
+    
+        <div class="question-number">
+            Q{{ question_number }} / {{ total_questions }}  ({{ question.difficulty }})
+        </div>
+    
+        <form method="POST" action="{{ url_for('controllers.take_quiz', quiz_id=quiz.id, question_number=question_number) }}" onsubmit="return validateSelection()">
+            <p class="question-text">{{ question.statement }}</p>
+    
+            <!-- Option Buttons -->
+            <button type="button" class="option-btn" data-value="1" onclick="selectOption(1, this)">{{ question.option1 }}</button>
+            <button type="button" class="option-btn" data-value="2" onclick="selectOption(2, this)">{{ question.option2 }}</button>
+            {% if question.option3 %}
+                <button type="button" class="option-btn" data-value="3" onclick="selectOption(3, this)">{{ question.option3 }}</button>
+            {% endif %}
+            {% if question.option4 %}
+                <button type="button" class="option-btn" data-value="4" onclick="selectOption(4, this)">{{ question.option4 }}</button>
+            {% endif %}
+    
+            <!-- Hidden Input to Store Selected Option -->
+            <input type="hidden" name="selected_option" id="selected_option" required>
+    
+            {% if question_number < total_questions %}
+                <button type="submit" class="btn btn-primary w-100 mt-3">Save and Next</button>
+            {% else %}
+                <button type="submit" class="btn btn-primary w-100 mt-3">Save</button>
+            {% endif %}
+    
+            <div class="navigation-buttons">
+                {% if question_number > 1 %}
+                    <a href="{{ url_for('controllers.take_quiz', quiz_id=quiz.id, question_number=question_number-1) }}" class="btn btn-outline-secondary">Previous</a>
+                {% else %}
+                    <div></div>
+                {% endif %}
+    
+                {% if question_number < total_questions %}
+                    <a href="{{ url_for('controllers.take_quiz', quiz_id=quiz.id, question_number=question_number+1) }}" class="btn btn-primary">Next</a>
+                {% endif %}
+            </div>
+    
+            {% if question_number == total_questions %}
+                <a href="{{ url_for('controllers.submit_quiz', quiz_id=quiz.id) }}" class="btn btn-success submit-btn">Submit Quiz</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <script>
+        function selectOption(value, button) {
+            document.getElementById('selected_option').value = value;
+    
+            // Highlight selected option
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.classList.remove('selected-option'));
+            button.classList.add('selected-option');
+        }
+    
+        function validateSelection() {
+            const selectedOption = document.getElementById('selected_option').value;
+            if (!selectedOption) {
+                alert('Please select an option before submitting.');
+                return false; // Prevent form submission
+            }
+            return true;
+        }
+    </script>
+    
+    <style>
+        .selected-option {
+            background-color: #007bff;
+            color: white;
+            border: 2px solid #0056b3;
+        }
+    </style>
+
+<script>
+    let remainingTime = parseInt("{{ remaining_time | default(0) }}");
+
+    function updateTimer() {
+        const timerElement = document.querySelector('.timer');
+
+        if (remainingTime <= 0) {
+            timerElement.innerHTML = '<span class="text-danger">Time\'s Up!</span>';
+            document.querySelector('form').submit();
+            return;
+        }
+
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = remainingTime % 60;
+
+        timerElement.textContent = `Time Left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+        remainingTime--;
+        setTimeout(updateTimer, 1000);
+    }
+
+    updateTimer();
+
+    // Handle Option Selection
+    document.querySelectorAll('.option-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('selected_option').value = this.dataset.value;
+        });
+    });
+</script>
+
+</body>
+</html>

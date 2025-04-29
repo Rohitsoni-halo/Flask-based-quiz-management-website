@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mb-4">Edit Quiz</h2>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-info">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+                {% if not edit_mode %}
+                    <form action="{{ url_for('controllers.edit_quiz') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="qid" class="form-label">Enter Quiz ID</label>
+                            <input type="text" class="form-control" id="qid" name="qid" required>
+                        </div>
+                        <button type="submit" name="search" class="btn btn-primary w-100">Get Quiz</button>
+                    </form>
+
+                {% else %}
+                    <form action="{{ url_for('controllers.edit_quiz') }}" method="POST">
+                        <input type="hidden" name="qid" value="{{ quiz.id }}">
+                        <div class="mb-3">
+                            <label for="qid" class="form-label">Quiz ID</label>
+                            <input type="text" class="form-control" id="qid" name="qid" value="{{ quiz.id }}" disabled>
+                        </div>
+                        <br>
+                        <div class="mb-3">
+                            <label for="new_qid" class="form-label">New quiz id</label>
+                            <input type="text" class="form-control" id="new_qid" name="new_qid" value="{{ quiz.id }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_cid" class="form-label">New chapter id</label>
+                            <input type="text" class="form-control" id="new_cid" name="new_cid" value="{{ quiz.cid }}" required>
+                        </div>
+                        <div class="mb-3 row">
+                            <div class="col-12 text-center">
+                                <label class="form-label fw-bold">Duration</label>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="duration-hours" class="form-label">Hours</label>
+                                <input type="number" class="form-control" id="duration-hours" name="duration_hours" 
+                                       min="0" max="5" value="{{ quiz.duration.hour }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="duration-minutes" class="form-label">Minutes</label>
+                                <input type="number" class="form-control" id="duration-minutes" name="duration_minutes" 
+                                       min="0" max="59" value="{{ quiz.duration.minute }}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <select class="form-control" id="difficulty" name="difficulty" required>
+                                <option value="Easy" {% if quiz.difficulty == "Easy" %} selected {% endif %}>Easy</option>
+                                <option value="Medium" {% if quiz.difficulty == "Medium" %} selected {% endif %}>Medium</option>
+                                <option value="Hard" {% if quiz.difficulty == "Hard" %} selected {% endif %}>Hard</option>
+                                <option value="Extreme" {% if quiz.difficulty == "Extreme" %} selected {% endif %}>Extreme</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="state" class="form-label">State</label>
+                            <select class="form-control" id="state" name="state" required>
+                                <option value="active" {% if quiz.state == "active" %} selected {% endif %}>Active</option>
+                                <option value="inactive" {% if quiz.state == "inactive" %} selected {% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="no-of-questions" class="form-label">Number of questions</label>
+                            <input type="number" class="form-control" id="no-of-questions" name="no_of_q" value="{{ quiz.no_of_questions }}" min="0" max="100" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="start-date" class="form-label">date and time of starting of quiz</label>
+                            <input type="datetime-local" class="form-control" id="start-date" name="start_date" value="{{ quiz.start_date }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="del-date" class="form-label">date and time of closing of quiz</label>
+                            <input type="datetime-local" class="form-control" id="del-date" name="del_date" value="{{ quiz.delete_date }}" required>
+                        </div>
+                        <button type="submit" name="update" class="btn btn-success w-100">Submit Changes</button>
+                    </form>
+
+                    <form action="{{ url_for('controllers.delete_quiz') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this quiz?');">
+                        <input type="hidden" name="qid" value="{{ quiz.id }}">
+                        <br>
+                        <button type="submit" class="btn btn-danger w-100">Delete Quiz</button>
+                    </form>
+                {% endif %}
+                <div class="mt-3 text-center">
+                    <a href="{{ url_for('controllers.admin_dashboard') }}">Go back to dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

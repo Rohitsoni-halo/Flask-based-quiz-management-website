@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2 class="text-center mb-4">Quiz Feedback</h2>
+
+<!-- Charts Section -->
+<div class="d-flex justify-content-around flex-wrap">
+    <div class="p-2" style="max-width: 45%;">
+        {{ pie_chart_html | safe }}
+    </div>
+    <div class="p-2" style="max-width: 50%;">
+        {{ bar_chart_html | safe }}
+    </div>
+</div>
+
+
+<div class="card shadow p-4 mt-4">
+    <h4 class="text-center text-success">Total Marks: {{ total_marks_scored }} out of {{ total_marks }}</h4>
+
+    {% for question in questions %}
+    <div class="mt-4">
+        
+        <h5>Q{{ loop.index }} (Marks: {{ question.marks }}): {{ question.statement }}</h5>
+
+        <div class="list-group">
+            {# Efficiently get the attempt detail for the current question #}
+            {% set attempt_detail = attempt_details.get(question.id) %}
+
+            {% for option in [question.option1, question.option2, question.option3, question.option4] if option %}
+                {% set option_index = loop.index %}
+
+                <div class="list-group-item
+                    {% if attempt_detail.selected_option != 5 %}
+                        {% if option_index == question.correct_option %}
+                            list-group-item-success  {# Correct and selected by user #}
+                        {% elif attempt_detail.selected_option == option_index and option_index != question.correct_option %}
+                            list-group-item-danger   {# Incorrect selection by user #}
+                        {% endif %}
+                    {% else %}
+                        {% if option_index == question.correct_option %}
+                            list-group-item-primary  {# Correct option when not attempted #}
+                        {% endif %}
+                    {% endif %}
+                ">
+                    {{ option }}
+                </div>
+            {% endfor %}
+            Explanation: {{ question.explanation }}
+            <br>
+            <a href= "{{ question.explanation_link}}" target="_blank">Explanation Link</a>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('controllers.user_dashboard') }}" class="btn btn-primary">Back to Dashboard</a>
+    </div>
+</div>
+
+{% endblock %}
